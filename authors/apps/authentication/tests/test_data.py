@@ -1,7 +1,7 @@
 valid_user = {
     "username" : "henryjones",
     "email" : "hjones@email.com",
-    "password" : "T35ting-i2E"
+    "password" : "T35tingi2E"
 }
 valid_user2 ={
     "username" : "peter",
@@ -11,12 +11,12 @@ valid_user2 ={
 user_with_existing_email = {
     "username": "peter",
     "email" : "hjones@email.com",
-    "password" : "T35ting-i2E"
+    "password" : "T35tingi2E"
 }
 user_with_existing_username = {
     "username" : "henryjones",
     "email": "peter@email.com",
-    "password": "T35ting-i2E"
+    "password": "T35tingi2E"
 }
 user_without_password = {
     "username": "henryjones",
@@ -24,11 +24,11 @@ user_without_password = {
 }
 user_without_username = {
     "email": "hjones@email.com",
-    "password": "T35ting-i2E"
+    "password": "T35tingi2E"
 }
 user_without_email = {
     "username" : "henryjones",
-    "password": "T35ting-i2E"
+    "password": "T35tingi2E"
 }
 user_with_little_password = {
     "username": "peter2",

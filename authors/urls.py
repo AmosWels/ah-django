@@ -21,4 +21,5 @@ app_name = 'authentication'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(('authors.apps.authentication.urls', 'authentication'), namespace='authentication')),
+    path('api/', include('authors.apps.profiles.urls', namespace='profiles')),
 ]

@@ -4,18 +4,27 @@ from rest_framework import serializers
 
 from .models import User
 
+import re
+from authors.apps.profiles.serializers import ProfileSerializer
+
+
 
 class RegistrationSerializer(serializers.ModelSerializer):
     """Serializers registration requests and creates a new user."""
 
+    
     # Ensure passwords are at least 8 characters long, no longer than 128
     # characters, and can not be read by the client.
     password = serializers.CharField(
         max_length=128,
         min_length=8,
         write_only=True
-    )
 
+    )
+    # When a field should be handled as a serializer, we must explicitly say
+    # so. Moreover, `UserSerializer` should never expose profile information,
+    # so we set `write_only=True`.
+    
     # The client should not be able to send a token along with a registration
     # request. Making `token` read-only handles that for us.
     token = serializers.CharField(max_length=255, read_only=True)
@@ -28,6 +37,20 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # Use the `create_user` method we wrote earlier to create a new user.
+        password = validated_data.get('password') #we get a key from the dictionary validated data
+        email = validated_data.get('email')
+        pattern = re.compile(
+                r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,128}$"
+            )
+
+        if not pattern.match(password):
+            raise serializers.ValidationError(
+                {
+                    "password" :[
+                    "password must contain a numeric character"
+                    ]
+                }
+                )
         return User.objects.create_user(**validated_data)
 
 
@@ -105,9 +128,17 @@ class UserSerializer(serializers.ModelSerializer):
         write_only=True
     )
 
+    profile = ProfileSerializer(write_only=True)
+    # We want to get the `bio` and `image` fields from the related Profile
+    # model.
+    bio = serializers.CharField(source='profile.bio', read_only=True)
+    image = serializers.CharField(source='profile.image', read_only=True)
+
     class Meta:
         model = User
-        fields = ('email', 'username', 'password', 'token',)
+        fields = (
+            'email', 'username', 'password', 'token','profile','bio','image',
+        )
 
         # The `read_only_fields` option is an alternative for explicitly
         # specifying the field with `read_only=True` like we did for password
@@ -127,7 +158,9 @@ class UserSerializer(serializers.ModelSerializer):
         # here is that we need to remove the password field from the
         # `validated_data` dictionary before iterating over it.
         password = validated_data.pop('password', None)
-
+        # Like passwords, we have to handle profiles separately. To do that,
+        # we remove the profile data from the `validated_data` dictionary.
+        profile_data = validated_data.pop('profile', {})
         for (key, value) in validated_data.items():
             # For the keys remaining in `validated_data`, we will set them on
             # the current `User` instance one at a time.
@@ -137,10 +170,17 @@ class UserSerializer(serializers.ModelSerializer):
             # `.set_password()` is the method mentioned above. It handles all
             # of the security stuff that we shouldn't be concerned with.
             instance.set_password(password)
-
         # Finally, after everything has been updated, we must explicitly save
         # the model. It's worth pointing out that `.set_password()` does not
         # save the model.
         instance.save()
+
+        for (key, value) in profile_data.items():
+        # We're doing the same thing as above, but this time we're making
+        # changes to the Profile model.
+            setattr(instance.profile, key, value)
+
+        # Save the profile just like we saved the user.
+        instance.profile.save()
 
         return instance
