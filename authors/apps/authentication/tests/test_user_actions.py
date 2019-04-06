@@ -33,13 +33,13 @@ class UserRetrieveUpdateAPIViewTestCase(TestCase):
         response = self.client.get(user_action_url, format="json")
         self.assertIn(
             "Invalid authentication. Could not decode token.",
-            response.data["detail"])
+            response.data["errors"]["detail"])
 
     def test_invalid_verification_link(self):
         response = self.client.get(f"{activate_url}?token={invalid_token}", format='json')
         self.assertIn(
             "Verifcation link is invalid. Check email for correct link.",
-            response.data["detail"])
+            response.data["errors"]["detail"])
 
     def test_api_can_retrieve_a_registered_user(self):
 
@@ -86,11 +86,11 @@ class UserRetrieveUpdateAPIViewTestCase(TestCase):
 
         self.client.credentials(HTTP_AUTHORIZATION='Fred ' + self.token)
         response = self.client.get(login_url, format="json")
-        self.assertIn("Bad Authorization header.", response.data["detail"])
+        self.assertIn("Bad Authorization header.", response.data["errors"]["detail"])
 
     def test_api_get_user_data_with_invalid_token(self):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + invalid_token)
         response = self.client.get(user_action_url, format="json")
         self.assertIn(
             "Invalid authentication. Could not decode token.",
-            response.data["detail"])
+            response.data["errors"]["detail"])

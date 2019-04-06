@@ -84,7 +84,11 @@ celerybeat-schedule
 venv/
 ENV/
 myenv/
+
 newenv/
+
+.local/
+
 
 # pipenv
 Pipfile

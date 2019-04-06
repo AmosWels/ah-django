@@ -19,7 +19,7 @@ if __name__ == "__main__":
                 "forget to activate a virtual environment?"
             )
         raise
-    # execute_from_command_line(sys.argv)
+
     is_testing = 'test' in sys.argv
 
     if is_testing:
