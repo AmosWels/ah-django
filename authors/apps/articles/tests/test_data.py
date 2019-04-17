@@ -23,6 +23,12 @@ update_article_title = {
     "title": "How to train my dragon"
 }
 
+new_valid_article = {
+    "title": "How to train your robot",
+    "description": "Steps taken to make your robot dance?",
+    "body": "You must be a good dancer yourself"
+}
+
 valid_article_2= {
     "title": "How to train your dragon",
     "description": "Ever wonder how?",

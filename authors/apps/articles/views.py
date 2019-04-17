@@ -2,13 +2,15 @@ from django.http import Http404
 from django.core import exceptions
 
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import permissions
 
 from .models import Article
 from .renderers import ArticleJSONRenderer
+from .permissions import IsOwnerOrReadOnly
 from .serializers import ArticleSerializer
 from .exceptions import ArticleDoesNotExist
 
@@ -32,12 +34,12 @@ class ListCreateArticleAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class RetrieveUpdateArticleAPIView(RetrieveUpdateAPIView):
-    lookup_field = 'slug'
-    queryset = Article.objects.select_related('author')
+class RetrieveArticleApiView(RetrieveUpdateDestroyAPIView):
     renderer_classes = (ArticleJSONRenderer,)
     serializer_class = ArticleSerializer
-
+    permission_classes = (IsOwnerOrReadOnly,IsAuthenticatedOrReadOnly)
+    lookup_field = 'slug'
+    queryset = Article.objects.select_related('author')
     def update(self, request, slug, *args, **kwargs):
         try:
             article_to_update = self.queryset.get(slug=slug)
@@ -62,3 +64,13 @@ class RetrieveUpdateArticleAPIView(RetrieveUpdateAPIView):
             raise Http404
         serializer = self.serializer_class(article)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def delete(self, request, slug, *args, **kwargs):
+        try:
+            article = self.queryset.get(slug=slug)
+        except Article.DoesNotExist:
+            raise ArticleDoesNotExist
+        
+        self.check_object_permissions(self.request, article)
+        article.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

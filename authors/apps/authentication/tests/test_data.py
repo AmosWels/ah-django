@@ -8,6 +8,17 @@ valid_user2 ={
     "email" : "peter@email.com",
     "password" : "Pass1234"
 }
+valid_user3 ={
+    "username" : "sapiens",
+    "email" : "sapiens@email.com",
+    "password" : "Pass1234_"
+}
+
+valid_user4 ={
+    "username" : "Anorld",
+    "email" : "anorld@email.com",
+    "password" : "Pass1234__"
+}
 user_with_existing_email = {
     "username": "peter",
     "email" : "hjones@email.com",
